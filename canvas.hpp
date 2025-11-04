@@ -1,8 +1,8 @@
 #pragma once
 
-#include "lodepng.h"
 #include <fstream>
 #include <iostream>
+#include <lodepng.h>
 #include <vector>
 namespace trj_render {
 
