@@ -1,17 +1,21 @@
 TARGET=trj2png
-CPP=$(shell ls *.cpp external/lodepng/*.cpp)
+CPP := $(shell ls *.cpp external/lodepng/*.cpp)
+OBJ := $(patsubst %.cpp,%.o,$(CPP))
 CXX = g++
 CXXFLAGS = -std=c++14 -O2 -Iexternal/lodepng -Iexternal/lammpstrj/include -Iexternal/param
 
 all: $(TARGET)
 
-trj2png:
-	$(CXX) $(CXXFLAGS) main.cpp external/lodepng/lodepng.cpp -o $@
+$(TARGET): $(OBJ)
+	$(CXX) $(CXXFLAGS) $(OBJ) -o $@
+
+%.o: %.cpp
+	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 .PHONY: clean dep
 
 clean:
-	rm -f $(TARGET)
+	rm -f $(OBJ) $(TARGET)
 
 dep:
 	g++ -MM $(CPP) $(CXXFLAGS) > makefile.dep
