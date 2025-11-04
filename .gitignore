@@ -1,4 +1,5 @@
 *.png
 *.bmp
 a.out
+trj2png
 .vscode
