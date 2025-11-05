@@ -1,5 +1,6 @@
 #pragma once
 
+#include "vector3d.hpp"
 #include <fstream>
 #include <iostream>
 #include <lodepng.h>
@@ -25,9 +26,21 @@ public:
     cy = 0;
   }
 
+  void moveto(const trj_render::Vector2d &v) {
+    int ix = static_cast<int>(v.x);
+    int iy = static_cast<int>(v.y);
+    moveto(ix, iy);
+  }
+
   void moveto(int x, int y) {
     cx = x;
     cy = y;
+  }
+
+  void lineto(const trj_render::Vector2d &v) {
+    int ix = static_cast<int>(v.x);
+    int iy = static_cast<int>(v.y);
+    lineto(ix, iy);
   }
 
   void lineto(int x, int y) {
@@ -141,7 +154,7 @@ public:
   }
 
   void save(const char *filename) {
-    lodepng::encode("hoge.png", image_buffer, width, height);
+    lodepng::encode(filename, image_buffer, width, height);
   }
 };
 } // namespace trj_render
