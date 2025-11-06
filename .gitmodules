@@ -1,0 +1,3 @@
+[submodule "external/lammpstrj-parser"]
+	path = external/lammpstrj-parser
+	url = git@github.com:kaityo256/lammpstrj-parser.git
