@@ -82,11 +82,13 @@ public:
     return to_view(p_world).x;
   }
 
-  [[nodiscard]] std::pair<double, double> canvas_size() const {
+  [[nodiscard]] std::pair<int, int> canvas_size() const {
     Bounds2D b = bounds2d_unscaled_();
     double w = (b.max_y - b.min_y) * scale_;
     double h = (b.max_z - b.min_z) * scale_;
-    return {w, h};
+    int wi = static_cast<int>(std::ceil(w));
+    int hi = static_cast<int>(std::ceil(h));
+    return {wi, hi};
   }
 
   [[nodiscard]] Vector2d project2d(const Vector3d &p_world) const {

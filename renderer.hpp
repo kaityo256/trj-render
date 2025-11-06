@@ -11,9 +11,9 @@ inline constexpr int MAX_ATOM_TYPES = 16;
 
 class Renderer {
 public:
-  Renderer() {
-    background_ = {255, 255, 255}; // 白
-    box_line_ = {0, 0, 0};         // 黒
+  Renderer(Projector &projector) : projector_(projector) {
+    background_ = {0, 0, 0};     // 白
+    box_line_ = {255, 255, 255}; // 黒
 
     for (int t = 0; t <= MAX_ATOM_TYPES; ++t) {
       atom_outline_[t] = {0, 0, 0};
@@ -40,7 +40,7 @@ public:
     int edges[12][2] = {
         {0, 1}, {2, 3}, {4, 5}, {6, 7}, {0, 2}, {1, 3}, {4, 6}, {5, 7}, {0, 4}, {1, 5}, {2, 6}, {3, 7}};
 
-    canvas.set_color(0, 0, 0);
+    canvas.set_color(box_line_);
     for (auto &e : edges) {
       Vector2d p1 = proj.project2d(c[e[0]]);
       Vector2d p2 = proj.project2d(c[e[1]]);
@@ -78,26 +78,22 @@ public:
   void draw_frame(const std::unique_ptr<lammpstrj::SystemInfo> &si,
                   std::vector<lammpstrj::Atom> &atoms) {
     static int index = 0;
-    Vector3d b1(si->x_min, si->y_min, si->z_min);
-    Vector3d b2(si->x_max, si->y_max, si->z_max);
-    Projector proj(b1, b2);
-    proj.rotateY(45);
-    proj.rotateZ(60);
-    proj.setScale(20);
-    auto [width, height] = proj.canvas_size();
+    auto [width, height] = projector_.canvas_size();
     Canvas canvas(width, height);
-    draw_simulation_box(si, canvas, proj);
-    draw_atoms(atoms, canvas, proj);
+    canvas.set_color(background_);
+    canvas.fill_rect(0, 0, width, height);
+    draw_simulation_box(si, canvas, projector_);
+    draw_atoms(atoms, canvas, projector_);
     std::ostringstream oss;
     oss << "frame." << std::setw(4) << std::setfill('0') << index << ".png";
     std::string filename = oss.str();
     std::cout << filename << std::endl;
     canvas.save(filename.c_str());
     index++;
-    exit(1);
   }
 
 private:
+  Projector projector_;
   Color background_;
   Color box_line_;
   std::array<Color, MAX_ATOM_TYPES + 1> atom_outline_;
