@@ -29,6 +29,12 @@ int main(int argc, char **argv) {
   }
 
   const std::string filename = result["filename"].as<std::string>();
+
+  if (!std::filesystem::exists(filename)) {
+    std::cerr << "Error: File not found: " << filename << std::endl;
+    return 1;
+  }
+
   const double rx_deg = result["rx"].as<double>();
   const double ry_deg = result["ry"].as<double>();
   const double rz_deg = result["rz"].as<double>();

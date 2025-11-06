@@ -6,3 +6,4 @@ trj2png
 .vscode
 makefile.dep
 *.lammpstrj
+*.gif
