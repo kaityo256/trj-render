@@ -77,7 +77,6 @@ public:
 
   void draw_frame(const std::unique_ptr<lammpstrj::SystemInfo> &si,
                   std::vector<lammpstrj::Atom> &atoms) {
-    static int index = 0;
     auto [width, height] = projector_.canvas_size();
     Canvas canvas(width, height);
     canvas.set_color(background_);
@@ -85,11 +84,10 @@ public:
     draw_simulation_box(si, canvas, projector_);
     draw_atoms(atoms, canvas, projector_);
     std::ostringstream oss;
-    oss << "frame." << std::setw(4) << std::setfill('0') << index << ".png";
+    oss << "frame." << std::setw(4) << std::setfill('0') << si->frame_index << ".png";
     std::string filename = oss.str();
     std::cout << filename << std::endl;
     canvas.save(filename.c_str());
-    index++;
   }
 
 private:

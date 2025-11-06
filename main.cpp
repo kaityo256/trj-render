@@ -33,7 +33,7 @@ int main(int argc, char **argv) {
   const double ry_deg = result["ry"].as<double>();
   const double rz_deg = result["rz"].as<double>();
   const double scale = result["scale"].as<double>();
-  const int frame_only = result["frame"].as<int>();
+  const int frame_index = result["frame"].as<int>();
 
   auto si = lammpstrj::read_info(filename);
   trj_render::Vector3d b1(si->x_min, si->y_min, si->z_min);
@@ -45,8 +45,15 @@ int main(int argc, char **argv) {
   proj.setScale(scale);
   trj_render::Renderer renderer(proj);
 
-  lammpstrj::for_each_frame(filename,
-                            [&renderer](const auto &si, auto &atoms) {
-                              renderer.draw_frame(si, atoms);
-                            });
+  if (frame_index < 0) {
+    lammpstrj::for_each_frame(filename,
+                              [&renderer](const auto &si, auto &atoms) {
+                                renderer.draw_frame(si, atoms);
+                              });
+  } else {
+    lammpstrj::for_frame(frame_index, filename,
+                         [&renderer](const auto &si, auto &atoms) {
+                           renderer.draw_frame(si, atoms);
+                         });
+  }
 }
