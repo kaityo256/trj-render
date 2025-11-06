@@ -41,9 +41,6 @@ struct Mat3d {
 
 class Projector {
 public:
-  /// @param bmin (xmin,ymin,zmin)
-  /// @param bmax (xmax,ymax,zmax)
-  /// @param scale 倍率（射影後の2Dに掛けるスケーリング）
   Projector(const Vector3d &bmin, const Vector3d &bmax, double scale = 1.0)
       : bmin_(bmin), bmax_(bmax), scale_(scale), R_(Mat3d::identity()) {
     center_.x = 0.5 * (bmin_.x + bmax_.x);
@@ -62,7 +59,6 @@ public:
     return scale_;
   }
 
-  // 右手系、現在視点に対して後置的に回転を積む
   void rotateX(double a) {
     a = a / 180 * M_PI;
     R_ = R_ * rotX(a);
@@ -76,20 +72,16 @@ public:
     R_ = R_ * rotZ(a);
   }
 
-  /// ワールド座標 → （重心原点へ平行移動）→ 回転 → ビュー座標
   [[nodiscard]] Vector3d to_view(const Vector3d &p_world) const {
     return R_ * Vector3d{p_world.x - center_.x,
                          p_world.y - center_.y,
                          p_world.z - center_.z};
   }
 
-  /// 深度（手前ほど大きい）：ビュー座標の x 成分
   [[nodiscard]] double depth(const Vector3d &p_world) const {
     return to_view(p_world).x;
   }
 
-  /// 現在の回転・倍率に対して、直方体の8頂点をすべて射影したときに完全に収まる
-  /// 必要最小の (width,height) を返す（スケール込み）
   [[nodiscard]] std::pair<double, double> canvas_size() const {
     Bounds2D b = bounds2d_unscaled_();
     double w = (b.max_y - b.min_y) * scale_;
@@ -97,24 +89,13 @@ public:
     return {w, h};
   }
 
-  /// 2D射影（スケール＆中央寄せ込み）
-  /// 画像の中心 (width/2,height/2) に直方体重心が来るようオフセットする。
   [[nodiscard]] Vector2d project2d(const Vector3d &p_world) const {
-    // ビュー座標（重心原点で回転済み）
     Vector3d v = to_view(p_world);
-
-    // 射影前の2Dバウンディングを取得（回転のみ反映、スケール無し）
     Bounds2D b = bounds2d_unscaled_();
-
-    // 2Dの中心（理論上は(0,0)だが、数値安定のために計算）
     const double cy = 0.5 * (b.min_y + b.max_y);
     const double cz = 0.5 * (b.min_z + b.max_z);
-
-    // スケール後のキャンバスサイズ
     const double width = (b.max_y - b.min_y) * scale_;
     const double height = (b.max_z - b.min_z) * scale_;
-
-    // 2D射影（y,z）を中心に合わせ、スケールを掛け、画像中心へ平行移動
     double sx = (v.y - cy) * scale_ + 0.5 * width;
     double sy = (v.z - cz) * scale_ + 0.5 * height;
     return {sx, sy};
@@ -133,8 +114,8 @@ public:
 
 private:
   struct Bounds2D {
-    double min_y, max_y; // ビュー座標の y 範囲
-    double min_z, max_z; // ビュー座標の z 範囲
+    double min_y, max_y;
+    double min_z, max_z;
   };
 
   Vector3d bmin_, bmax_;
@@ -142,7 +123,6 @@ private:
   double scale_;
   Mat3d R_;
 
-  // 直方体の8頂点（ワールド）を列挙
   std::array<Vector3d, 8> corners_() const {
     const double xs[2] = {bmin_.x, bmax_.x};
     const double ys[2] = {bmin_.y, bmax_.y};
@@ -156,13 +136,12 @@ private:
     return c;
   }
 
-  // 現在の回転 R_ に基づき、（重心原点にして）2D(y,z)の未スケール境界を得る
   Bounds2D bounds2d_unscaled_() const {
     auto cs = corners_();
     double miny = +1e300, maxy = -1e300;
     double minz = +1e300, maxz = -1e300;
     for (const auto &p : cs) {
-      Vector3d v = to_view(p); // center 平行移動 → 回転
+      Vector3d v = to_view(p);
       miny = std::min(miny, v.y);
       maxy = std::max(maxy, v.y);
       minz = std::min(minz, v.z);
@@ -171,7 +150,6 @@ private:
     return {miny, maxy, minz, maxz};
   }
 
-  // 回転行列ユーティリティ
   static Mat3d rotX(double a) {
     const double c = std::cos(a), s = std::sin(a);
     Mat3d M{};
