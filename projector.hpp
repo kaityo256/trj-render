@@ -53,8 +53,24 @@ public:
   }
 
   void setScale(double s) {
-    scale_ = s;
+    if (s > 0.0) {
+      scale_ = s;
+      return;
+    }
+
+    Bounds2D b = bounds2d_unscaled_();
+    double w = (b.max_y - b.min_y);
+    double h = (b.max_z - b.min_z);
+    double max_len = std::max(w, h);
+
+    if (max_len < 1e-12) {
+      scale_ = 1.0;
+      return;
+    }
+
+    scale_ = 800.0 / max_len;
   }
+
   double scale() const {
     return scale_;
   }
