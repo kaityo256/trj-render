@@ -1,6 +1,7 @@
 #include "canvas.hpp"
 #include "projector.hpp"
 #include "vector3d.hpp"
+#include <cstdio>
 #include <iostream>
 #include <lammpstrj/lammpstrj.hpp>
 
@@ -102,7 +103,6 @@ void draw_frame(const std::unique_ptr<lammpstrj::SystemInfo> &si,
   proj.rotateY(45);
   proj.rotateZ(30);
   proj.setScale(10);
-  std::cout << index << std::endl;
   auto [width, height] = proj.canvas_size();
   trj_render::canvas canvas(width, height);
   proj.draw_simulation_box(canvas);
@@ -128,29 +128,16 @@ void draw_frame(const std::unique_ptr<lammpstrj::SystemInfo> &si,
     canvas.set_color(0, 0, 0);
     canvas.draw_circle(s.x, s.y, 5);
   }
-
-  canvas.save("test.png");
-  exit(1);
+  std::ostringstream oss;
+  oss << "frame." << std::setw(4) << std::setfill('0') << index << ".png";
+  std::string filename = oss.str();
+  std::cout << filename << std::endl;
+  canvas.save(filename.c_str());
+  index++;
 }
 
 void test_trj() {
   const char *filename = "collision.lammpstrj";
-  /*
-  auto si = lammpstrj::read_info(filename);
-  trj_render::Vector3d b1(si->x_min, si->y_min, si->z_min);
-  trj_render::Vector3d b2(si->x_max, si->y_max, si->z_max);
-  // trj_render::Vector3d b1(-20, -20, -20);
-  // trj_render::Vector3d b2(20, 20, 20);
-  trj_render::Projector proj(b1, b2);
-  proj.rotateY(45);
-  proj.rotateZ(30);
-  proj.setScale(10);
-  auto [width, height] = proj.canvas_size();
-  trj_render::canvas canvas(width, height);
-  proj.draw_simulation_box(canvas);
-  canvas.save("test.png");
-  */
-
   lammpstrj::for_each_frame(filename, [](const std::unique_ptr<lammpstrj::SystemInfo> &si, std::vector<lammpstrj::Atom> &atoms) { draw_frame(si, atoms); });
 }
 
