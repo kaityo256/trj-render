@@ -2,6 +2,7 @@
 #include "projector.hpp"
 #include "vector3d.hpp"
 #include <iostream>
+#include <lammpstrj/lammpstrj.hpp>
 
 void test() {
   // Prepare a canvas (width, height)
@@ -66,9 +67,9 @@ void test3d() {
   trj_render::Vector3d b2 = trj_render::Vector3d(L, L, L);
 
   trj_render::Projector proj(b1, b2);
-  proj.setScale(10);
   proj.rotateY(45);
   proj.rotateZ(30);
+  proj.setScale(10);
   std::pair<double, double> size = proj.canvas_size();
   double width = size.first;
   double height = size.second;
@@ -92,6 +93,67 @@ void test3d() {
   canvas.save("test.png");
 }
 
+void draw_frame(const std::unique_ptr<lammpstrj::SystemInfo> &si,
+                std::vector<lammpstrj::Atom> &atoms) {
+  static int index = 0;
+  trj_render::Vector3d b1(si->x_min, si->y_min, si->z_min);
+  trj_render::Vector3d b2(si->x_max, si->y_max, si->z_max);
+  trj_render::Projector proj(b1, b2);
+  proj.rotateY(45);
+  proj.rotateZ(30);
+  proj.setScale(10);
+  std::cout << index << std::endl;
+  auto [width, height] = proj.canvas_size();
+  trj_render::canvas canvas(width, height);
+  proj.draw_simulation_box(canvas);
+  std::vector<trj_render::Vector3d> pos;
+  for (auto a : atoms) {
+    pos.push_back(trj_render::Vector3d(a.x, a.y, a.z));
+  }
+  std::vector<std::size_t> idx(atoms.size());
+  for (std::size_t i = 0; i < atoms.size(); ++i) {
+    idx[i] = i;
+  }
+  canvas.set_color(255, 0, 0);
+  std::sort(idx.begin(), idx.end(),
+            [&](std::size_t ia, std::size_t ib) {
+              double da = proj.depth(pos[ia]);
+              double db = proj.depth(pos[ib]);
+              return da < db;
+            });
+  for (std::size_t i : idx) {
+    trj_render::Vector2d s = proj.project2d(pos[i]);
+    canvas.set_color(255, 0, 0);
+    canvas.fill_circle(s.x, s.y, 5);
+    canvas.set_color(0, 0, 0);
+    canvas.draw_circle(s.x, s.y, 5);
+  }
+
+  canvas.save("test.png");
+  exit(1);
+}
+
+void test_trj() {
+  const char *filename = "collision.lammpstrj";
+  /*
+  auto si = lammpstrj::read_info(filename);
+  trj_render::Vector3d b1(si->x_min, si->y_min, si->z_min);
+  trj_render::Vector3d b2(si->x_max, si->y_max, si->z_max);
+  // trj_render::Vector3d b1(-20, -20, -20);
+  // trj_render::Vector3d b2(20, 20, 20);
+  trj_render::Projector proj(b1, b2);
+  proj.rotateY(45);
+  proj.rotateZ(30);
+  proj.setScale(10);
+  auto [width, height] = proj.canvas_size();
+  trj_render::canvas canvas(width, height);
+  proj.draw_simulation_box(canvas);
+  canvas.save("test.png");
+  */
+
+  lammpstrj::for_each_frame(filename, [](const std::unique_ptr<lammpstrj::SystemInfo> &si, std::vector<lammpstrj::Atom> &atoms) { draw_frame(si, atoms); });
+}
+
 int main() {
-  test3d();
+  test_trj();
 }

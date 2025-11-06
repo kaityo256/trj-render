@@ -153,6 +153,7 @@ public:
     };
 
     // 各辺を描画
+    canvas.set_color(0, 0, 0);
     for (auto &e : edges) {
       trj_render::Vector2d p1 = project2d(c[e[0]]);
       trj_render::Vector2d p2 = project2d(c[e[1]]);
@@ -203,6 +204,7 @@ private:
 
   // 回転行列ユーティリティ
   static Mat3d rotX(double a) {
+    a = a / 180 * M_PI;
     const double c = std::cos(a), s = std::sin(a);
     Mat3d M{};
     M.m[0][0] = 1;
@@ -217,6 +219,8 @@ private:
     return M;
   }
   static Mat3d rotY(double a) {
+    a = a / 180 * M_PI;
+
     const double c = std::cos(a), s = std::sin(a);
     Mat3d M{};
     M.m[0][0] = c;
@@ -231,6 +235,8 @@ private:
     return M;
   }
   static Mat3d rotZ(double a) {
+    a = a / 180 * M_PI;
+
     const double c = std::cos(a), s = std::sin(a);
     Mat3d M{};
     M.m[0][0] = c;

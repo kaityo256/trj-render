@@ -2,7 +2,7 @@ TARGET=trj2png
 CPP := $(shell ls *.cpp external/lodepng/*.cpp)
 OBJ := $(patsubst %.cpp,%.o,$(CPP))
 CXX = g++
-CXXFLAGS = -std=c++14 -O2 -Iexternal/lodepng -Iexternal/lammpstrj/include -Iexternal/param
+CXXFLAGS = -std=c++17 -O2 -Iexternal/lodepng -Iexternal/lammpstrj-parser/include -Iexternal/param
 
 all: $(TARGET)
 
