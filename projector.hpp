@@ -1,6 +1,6 @@
 #pragma once
 #include "canvas.hpp"
-#include "vector3d.hpp" // struct Vector3d { double x,y,z; }
+#include "vector3d.hpp"
 #include <algorithm>
 #include <array>
 #include <cmath>
@@ -63,12 +63,15 @@ public:
 
   // 右手系、現在視点に対して後置的に回転を積む
   void rotateX(double a) {
+    a = a / 180 * M_PI;
     R_ = R_ * rotX(a);
   }
   void rotateY(double a) {
+    a = a / 180 * M_PI;
     R_ = R_ * rotY(a);
   }
   void rotateZ(double a) {
+    a = a / 180 * M_PI;
     R_ = R_ * rotZ(a);
   }
 
@@ -204,7 +207,6 @@ private:
 
   // 回転行列ユーティリティ
   static Mat3d rotX(double a) {
-    a = a / 180 * M_PI;
     const double c = std::cos(a), s = std::sin(a);
     Mat3d M{};
     M.m[0][0] = 1;
@@ -219,8 +221,6 @@ private:
     return M;
   }
   static Mat3d rotY(double a) {
-    a = a / 180 * M_PI;
-
     const double c = std::cos(a), s = std::sin(a);
     Mat3d M{};
     M.m[0][0] = c;
@@ -235,8 +235,6 @@ private:
     return M;
   }
   static Mat3d rotZ(double a) {
-    a = a / 180 * M_PI;
-
     const double c = std::cos(a), s = std::sin(a);
     Mat3d M{};
     M.m[0][0] = c;
