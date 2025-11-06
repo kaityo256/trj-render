@@ -3,6 +3,7 @@
 #include "projector.hpp"
 #include "vector3d.hpp"
 #include <cstdio>
+#include <iomanip>
 #include <iostream>
 #include <lammpstrj/lammpstrj.hpp>
 namespace trj_render {
