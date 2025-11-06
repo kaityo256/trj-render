@@ -76,15 +76,15 @@ public:
   }
 
   void rotateX(double a) {
-    a = a / 180 * M_PI;
+    a = a / 180.0 * M_PI;
     R_ = R_ * rotX(a);
   }
   void rotateY(double a) {
-    a = a / 180 * M_PI;
+    a = a / 180.0 * M_PI;
     R_ = R_ * rotY(a);
   }
   void rotateZ(double a) {
-    a = a / 180 * M_PI;
+    a = a / 180.0 * M_PI;
     R_ = R_ * rotZ(a);
   }
 
