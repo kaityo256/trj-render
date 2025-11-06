@@ -16,7 +16,6 @@ void draw_simulation_box(const std::unique_ptr<lammpstrj::SystemInfo> &si, trj_r
       {si->x_min, si->y_max, si->z_max}, // 6
       {si->x_max, si->y_max, si->z_max}  // 7
   };
-
   // 各辺を構成する頂点インデックスのペア (12本)
   int edges[12][2] = {
       {0, 1}, {2, 3}, {4, 5}, {6, 7}, {0, 2}, {1, 3}, {4, 6}, {5, 7}, {0, 4}, {1, 5}, {2, 6}, {3, 7}};
@@ -63,7 +62,7 @@ void draw_frame(const std::unique_ptr<lammpstrj::SystemInfo> &si,
   trj_render::Vector3d b2(si->x_max, si->y_max, si->z_max);
   trj_render::Projector proj(b1, b2);
   proj.rotateY(45);
-  proj.rotateZ(30);
+  proj.rotateZ(60);
   proj.setScale(10);
   auto [width, height] = proj.canvas_size();
   trj_render::Canvas canvas(width, height);
@@ -75,6 +74,7 @@ void draw_frame(const std::unique_ptr<lammpstrj::SystemInfo> &si,
   std::cout << filename << std::endl;
   canvas.save(filename.c_str());
   index++;
+  exit(1);
 }
 
 void test_trj() {
