@@ -7,17 +7,19 @@
 #include <vector>
 namespace trj_render {
 
-typedef unsigned char BYTE;
+struct Color {
+  unsigned char r, g, b;
+};
 
-class canvas {
+class Canvas {
 private:
   int width, height, line;
-  int cx, cy;   // Current Point
-  BYTE R, G, B; // Current Color
+  int cx, cy;            // Current Point
+  unsigned char R, G, B; // Current Color
 
 public:
-  std::vector<BYTE> image_buffer;
-  canvas(int w, int h) {
+  std::vector<unsigned char> image_buffer;
+  Canvas(int w, int h) {
     width = w;
     height = h;
     line = w * 4;
@@ -86,7 +88,11 @@ public:
     image_buffer[p + 2] = B;
   }
 
-  void set_color(BYTE red, BYTE green, BYTE blue) {
+  void set_color(Color c) {
+    set_color(c.r, c.g, c.b);
+  }
+
+  void set_color(unsigned char red, unsigned char green, unsigned char blue) {
     R = red;
     G = green;
     B = blue;

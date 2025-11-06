@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <array>
 #include <cmath>
+#include <lammpstrj/lammpstrj.hpp>
 #include <utility>
 
 namespace trj_render {
@@ -128,41 +129,6 @@ public:
     Vector3d s6 = Vector3d(bmin_.x, bmin_.y, bmin_.z);
     Vector3d s7 = Vector3d(bmin_.x, bmin_.y, bmin_.z);
     Vector3d s8 = Vector3d(bmin_.x, bmin_.y, bmin_.z);
-  }
-
-  void draw_simulation_box(trj_render::canvas &canvas) {
-    trj_render::Vector3d c[8] = {
-        {bmin_.x, bmin_.y, bmin_.z}, // 0
-        {bmax_.x, bmin_.y, bmin_.z}, // 1
-        {bmin_.x, bmax_.y, bmin_.z}, // 2
-        {bmax_.x, bmax_.y, bmin_.z}, // 3
-        {bmin_.x, bmin_.y, bmax_.z}, // 4
-        {bmax_.x, bmin_.y, bmax_.z}, // 5
-        {bmin_.x, bmax_.y, bmax_.z}, // 6
-        {bmax_.x, bmax_.y, bmax_.z}  // 7
-    };
-
-    // 各辺を構成する頂点インデックスのペア (12本)
-    int edges[12][2] = {
-        {0, 1}, {2, 3}, {4, 5}, {6, 7}, // x方向の4本
-        {0, 2},
-        {1, 3},
-        {4, 6},
-        {5, 7}, // y方向の4本
-        {0, 4},
-        {1, 5},
-        {2, 6},
-        {3, 7} // z方向の4本
-    };
-
-    // 各辺を描画
-    canvas.set_color(0, 0, 0);
-    for (auto &e : edges) {
-      trj_render::Vector2d p1 = project2d(c[e[0]]);
-      trj_render::Vector2d p2 = project2d(c[e[1]]);
-      canvas.moveto(p1);
-      canvas.lineto(p2);
-    }
   }
 
 private:
