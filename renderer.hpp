@@ -7,10 +7,26 @@
 #include <lammpstrj/lammpstrj.hpp>
 namespace trj_render {
 
+inline constexpr int MAX_ATOM_TYPES = 16;
+
 class Renderer {
 public:
-  void
-  draw_simulation_box(const std::unique_ptr<lammpstrj::SystemInfo> &si, Canvas &canvas, Projector &proj) {
+  Renderer() {
+    background_ = {255, 255, 255}; // 白
+    box_line_ = {0, 0, 0};         // 黒
+
+    for (int t = 0; t <= MAX_ATOM_TYPES; ++t) {
+      atom_outline_[t] = {0, 0, 0};
+      atom_fill_[t] = {64, 128, 255};
+      atom_radius_[t] = 0.5;
+    }
+    if (MAX_ATOM_TYPES >= 1) atom_fill_[1] = {230, 64, 64};  // 赤
+    if (MAX_ATOM_TYPES >= 2) atom_fill_[2] = {64, 200, 64};  // 緑
+    if (MAX_ATOM_TYPES >= 3) atom_fill_[3] = {64, 100, 255}; // 青
+    if (MAX_ATOM_TYPES >= 4) atom_fill_[4] = {255, 210, 64}; // 黄
+  }
+
+  void draw_simulation_box(const std::unique_ptr<lammpstrj::SystemInfo> &si, Canvas &canvas, Projector &proj) {
     Vector3d c[8] = {
         {si->x_min, si->y_min, si->z_min}, // 0
         {si->x_max, si->y_min, si->z_min}, // 1
@@ -21,11 +37,9 @@ public:
         {si->x_min, si->y_max, si->z_max}, // 6
         {si->x_max, si->y_max, si->z_max}  // 7
     };
-    // 各辺を構成する頂点インデックスのペア (12本)
     int edges[12][2] = {
         {0, 1}, {2, 3}, {4, 5}, {6, 7}, {0, 2}, {1, 3}, {4, 6}, {5, 7}, {0, 4}, {1, 5}, {2, 6}, {3, 7}};
 
-    // 各辺を描画
     canvas.set_color(0, 0, 0);
     for (auto &e : edges) {
       Vector2d p1 = proj.project2d(c[e[0]]);
@@ -44,7 +58,6 @@ public:
     for (std::size_t i = 0; i < atoms.size(); ++i) {
       idx[i] = i;
     }
-    canvas.set_color(255, 0, 0);
     std::sort(idx.begin(), idx.end(),
               [&](std::size_t ia, std::size_t ib) {
                 double da = proj.depth(pos[ia]);
@@ -52,11 +65,13 @@ public:
                 return da < db;
               });
     for (std::size_t i : idx) {
+      const auto t = atoms[i].type;
+      const double r = atom_radius_[t] * proj.scale();
       Vector2d s = proj.project2d(pos[i]);
-      canvas.set_color(255, 0, 0);
-      canvas.fill_circle(s.x, s.y, 5);
-      canvas.set_color(0, 0, 0);
-      canvas.draw_circle(s.x, s.y, 5);
+      canvas.set_color(atom_fill_[t]);
+      canvas.fill_circle(s.x, s.y, r);
+      canvas.set_color(atom_outline_[t]);
+      canvas.draw_circle(s.x, s.y, r);
     }
   }
 
@@ -68,7 +83,7 @@ public:
     Projector proj(b1, b2);
     proj.rotateY(45);
     proj.rotateZ(60);
-    proj.setScale(10);
+    proj.setScale(20);
     auto [width, height] = proj.canvas_size();
     Canvas canvas(width, height);
     draw_simulation_box(si, canvas, proj);
@@ -79,6 +94,14 @@ public:
     std::cout << filename << std::endl;
     canvas.save(filename.c_str());
     index++;
+    exit(1);
   }
+
+private:
+  Color background_;
+  Color box_line_;
+  std::array<Color, MAX_ATOM_TYPES + 1> atom_outline_;
+  std::array<Color, MAX_ATOM_TYPES + 1> atom_fill_;
+  std::array<double, MAX_ATOM_TYPES + 1> atom_radius_;
 };
 } // namespace trj_render
