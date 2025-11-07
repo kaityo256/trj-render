@@ -23,13 +23,27 @@ All dependencies are header-only libraries included via `external/`:
 
 ## Build
 
-### Requirements
-- C++17-compatible compiler (tested with GCC ≥ 8.5.0)
-- GNU Make
+- Requirements  
+  - C++17-compatible compiler (tested with GCC ≥ 8.5.0)  
+  - GNU Make  
 
-```sh
+### 1. Clone the repository (with submodules)
+```bash
+git clone --recursive https://github.com/kaityo256/trj-render.git
+cd trj-render
+```
+
+If you have already cloned it without `--recursive`, initialize submodules manually:
+```bash
+git submodule update --init --recursive
+```
+
+### 2. Build
+```bash
 make
 ```
+
+This will compile the program and produce the executable `trj2png` in the project directory.
 
 ## Usage
 
@@ -58,8 +72,15 @@ Render all frames, rotating by 30° around Y and −15° around Z, scaling by 20
 
 Render only frame 3, rotating by 45° around X, with automatic scaling:
 ```bash
-./trj2png --rx 45 --scale -1 --frame 3 sample.lammpstrj
+./trj2png --rx 45 --scale -1 -f 3 sample.lammpstrj
 ```
+
+Render frame 20, rotating by 30° around X, 3° around Y, and 3° around Z,  
+and set the radius of atom type 2 to 10:
+```bash
+./trj2png -x 30 -y 3 -z 3 --radius2=10 -f 20 sample.lammpstrj
+```
+
 
 ## Output
 
