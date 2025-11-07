@@ -27,6 +27,10 @@ public:
     if (MAX_ATOM_TYPES >= 4) atom_fill_[4] = {255, 210, 64}; // 黄
   }
 
+  void set_atom_radius(int type, double radius) {
+    atom_radius_[type] = radius;
+  }
+
   void draw_simulation_box(const std::unique_ptr<lammpstrj::SystemInfo> &si, Canvas &canvas, Projector &proj) {
     Vector3d c[8] = {
         {si->x_min, si->y_min, si->z_min}, // 0

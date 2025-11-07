@@ -1,7 +1,7 @@
 #include "renderer.hpp"
 #include <cstdio>
 #include <cxxopts.hpp>
-#include <iostream>
+#include <filesystem>
 #include <lammpstrj/lammpstrj.hpp>
 
 int main(int argc, char **argv) {
@@ -14,6 +14,12 @@ int main(int argc, char **argv) {
   options.add_options()("h,help", "Showhelp");
   options.add_options("positional")("filename", "LAMMPS trajectory file (.lammpstrj)", cxxopts::value<std::string>());
   options.parse_positional({"filename"});
+
+  for (int i = 0; i < trj_render::MAX_ATOM_TYPES; ++i) {
+    std::string key = "radius" + std::to_string(i);
+    std::string desc = "Radius of atom type " + std::to_string(i);
+    options.add_options()(key, desc, cxxopts::value<double>());
+  }
 
   auto result = options.parse(argc, argv);
 
@@ -50,6 +56,14 @@ int main(int argc, char **argv) {
   proj.rotateZ(rz_deg);
   proj.setScale(scale);
   trj_render::Renderer renderer(proj);
+
+  for (int i = 0; i < trj_render::MAX_ATOM_TYPES; ++i) {
+    std::string opt = "radius" + std::to_string(i);
+    if (result.count(opt)) {
+      double r = result[opt].as<double>();
+      renderer.set_atom_radius(i, r);
+    }
+  }
 
   if (frame_index < 0) {
     lammpstrj::for_each_frame(filename,
