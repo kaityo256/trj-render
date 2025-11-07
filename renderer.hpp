@@ -13,8 +13,8 @@ inline constexpr int MAX_ATOM_TYPES = 16;
 class Renderer {
 public:
   Renderer(Projector &projector) : projector_(projector) {
-    background_ = {0, 0, 0};     // 白
-    box_line_ = {255, 255, 255}; // 黒
+    background_ = {0, 0, 0};
+    box_line_ = {255, 255, 255};
 
     for (int t = 0; t <= MAX_ATOM_TYPES; ++t) {
       atom_outline_[t] = {0, 0, 0};

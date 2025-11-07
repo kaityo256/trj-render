@@ -4,7 +4,7 @@
 #include <filesystem>
 #include <lammpstrj/lammpstrj.hpp>
 
-int main(int argc, char **argv) {
+auto parse_argument(int argc, char **argv) {
   cxxopts::Options options("trj2png", "Render LAMMPS .lammpstrj frames to PNG (2D projection).");
   options.add_options()("x,rx", "Rotation around X axis (degrees)", cxxopts::value<double>()->default_value("0"));
   options.add_options()("y,ry", "Rotation around Y axis (degrees)", cxxopts::value<double>()->default_value("0"));
@@ -22,23 +22,27 @@ int main(int argc, char **argv) {
   }
 
   auto result = options.parse(argc, argv);
-
   if (result.count("help")) {
     std::cout << options.help({"", "positional"}) << std::endl;
-    return 0;
+    exit(0);
   }
 
   if (!result.count("filename")) {
     std::cerr << "Error: filename is required.\n\n"
               << options.help({"", "positional"}) << std::endl;
-    return 1;
+    exit(1);
   }
+  return result;
+}
+
+void read_lammpstrj(int argc, char **argv) {
+  auto result = parse_argument(argc, argv);
 
   const std::string filename = result["filename"].as<std::string>();
 
   if (!std::filesystem::exists(filename)) {
     std::cerr << "Error: File not found: " << filename << std::endl;
-    return 1;
+    exit(1);
   }
 
   const double rx_deg = result["rx"].as<double>();
@@ -76,4 +80,41 @@ int main(int argc, char **argv) {
                            renderer.draw_frame(si, atoms);
                          });
   }
+}
+
+void test() {
+  trj_render::Vector3d b1(0, 0, 0);
+  trj_render::Vector3d b2(20, 20, 20);
+  trj_render::Projector proj(b1, b2);
+  proj.rotateZ(0);
+  proj.rotateY(0);
+  proj.setScale(-1);
+  trj_render::Renderer renderer(proj);
+  std::vector<lammpstrj::Atom> atoms;
+  lammpstrj::Atom a;
+  a.x = 5;
+  a.y = 5;
+  a.z = 10;
+  a.type = 1;
+  atoms.push_back(a);
+  auto [width, height] = proj.canvas_size();
+  trj_render::Canvas canvas(width, height);
+  auto si = std::make_unique<lammpstrj::SystemInfo>();
+  si->x_min = b1.x;
+  si->y_min = b1.y;
+  si->z_min = b1.z;
+  si->x_max = b2.x;
+  si->y_max = b2.y;
+  si->z_max = b2.z;
+  canvas.set_color(0, 0, 0);
+  canvas.fill_rect(0, 0, width, height);
+  renderer.draw_simulation_box(si, canvas, proj);
+  renderer.set_atom_radius(1, 5);
+  renderer.draw_atoms(atoms, canvas, proj);
+  canvas.save("test.png");
+}
+
+int main(int argc, char **argv) {
+  read_lammpstrj(argc, argv);
+  // test();
 }

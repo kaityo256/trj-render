@@ -119,17 +119,6 @@ public:
     return {sx, sy};
   }
 
-  void test() {
-    Vector3d s1 = Vector3d(bmin_.x, bmin_.y, bmin_.z);
-    Vector3d s2 = Vector3d(bmin_.x, bmin_.y, bmin_.z);
-    Vector3d s3 = Vector3d(bmin_.x, bmin_.y, bmin_.z);
-    Vector3d s4 = Vector3d(bmin_.x, bmin_.y, bmin_.z);
-    Vector3d s5 = Vector3d(bmin_.x, bmin_.y, bmin_.z);
-    Vector3d s6 = Vector3d(bmin_.x, bmin_.y, bmin_.z);
-    Vector3d s7 = Vector3d(bmin_.x, bmin_.y, bmin_.z);
-    Vector3d s8 = Vector3d(bmin_.x, bmin_.y, bmin_.z);
-  }
-
 private:
   struct Bounds2D {
     double min_y, max_y;
