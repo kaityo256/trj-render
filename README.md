@@ -90,7 +90,6 @@ and set the radius of atom type 2 to 10:
   frame.0001.png
   ...
   ```
-- Simulation box edges are drawn as black lines.
 - Atom color, border, and radius are automatically assigned based on atom type.
 
 ## License
