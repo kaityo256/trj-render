@@ -119,6 +119,10 @@ public:
     return {sx, sy};
   }
 
+  [[nodiscard]] Vector3d apply_rotation(const Vector3d &v) const {
+    return R_ * v;
+  }
+
 private:
   struct Bounds2D {
     double min_y, max_y;

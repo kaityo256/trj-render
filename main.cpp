@@ -86,14 +86,14 @@ void test() {
   trj_render::Vector3d b1(0, 0, 0);
   trj_render::Vector3d b2(20, 20, 20);
   trj_render::Projector proj(b1, b2);
-  proj.rotateZ(0);
-  proj.rotateY(0);
+  proj.rotateY(30);
+  proj.rotateX(30);
   proj.setScale(-1);
   trj_render::Renderer renderer(proj);
   std::vector<lammpstrj::Atom> atoms;
   lammpstrj::Atom a;
-  a.x = 5;
-  a.y = 5;
+  a.x = 10;
+  a.y = 10;
   a.z = 10;
   a.type = 1;
   atoms.push_back(a);
@@ -108,9 +108,10 @@ void test() {
   si->z_max = b2.z;
   canvas.set_color(0, 0, 0);
   canvas.fill_rect(0, 0, width, height);
-  renderer.draw_simulation_box(si, canvas, proj);
-  renderer.set_atom_radius(1, 5);
+  renderer.set_atom_radius(1, 10);
+  renderer.draw_simulation_box_back(si, canvas, proj);
   renderer.draw_atoms(atoms, canvas, proj);
+  renderer.draw_simulation_box_front(si, canvas, proj);
   canvas.save("test.png");
 }
 

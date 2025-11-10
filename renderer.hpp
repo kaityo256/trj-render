@@ -31,7 +31,49 @@ public:
     atom_radius_[type] = radius;
   }
 
-  void draw_simulation_box(const std::unique_ptr<lammpstrj::SystemInfo> &si, Canvas &canvas, Projector &proj) {
+  std::vector<uint8_t> get_visible(Projector &proj) {
+    std::vector<uint8_t> is_face_front(6, 1);
+    auto v1 = proj.apply_rotation(trj_render::Vector3d(1, 0, 0));
+    is_face_front[0] = (v1.x < 0);
+    is_face_front[3] = !(v1.x < 0);
+    auto v2 = proj.apply_rotation(trj_render::Vector3d(0, 1, 0));
+    is_face_front[1] = (v2.x < 0);
+    is_face_front[4] = !(v2.x < 0);
+    auto v3 = proj.apply_rotation(trj_render::Vector3d(0, 0, 1));
+    is_face_front[2] = (v3.x < 0);
+    is_face_front[5] = !(v3.x < 0);
+
+    std::vector<uint8_t> is_edge_visible(12, 1);
+
+    is_edge_visible[0] = is_face_front[1] | is_face_front[2];
+    is_edge_visible[1] = is_face_front[2] | is_face_front[4];
+    is_edge_visible[2] = is_face_front[1] | is_face_front[5];
+    is_edge_visible[3] = is_face_front[4] | is_face_front[5];
+    is_edge_visible[4] = is_face_front[0] | is_face_front[2];
+    is_edge_visible[5] = is_face_front[2] | is_face_front[3];
+    is_edge_visible[6] = is_face_front[0] | is_face_front[5];
+    is_edge_visible[7] = is_face_front[3] | is_face_front[5];
+    is_edge_visible[8] = is_face_front[0] | is_face_front[1];
+    is_edge_visible[9] = is_face_front[1] | is_face_front[3];
+    is_edge_visible[10] = is_face_front[0] | is_face_front[4];
+    is_edge_visible[11] = is_face_front[3] | is_face_front[4];
+
+    return is_edge_visible;
+  }
+
+  void draw_simulation_box_back(Vector3d c[8], int edges[12][2], Canvas &canvas, Projector &proj) {
+    auto visible = get_visible(proj);
+    canvas.set_color(box_line_);
+    for (int i = 0; i < 12; i++) {
+      if (visible[i]) continue;
+      Vector2d p1 = proj.project2d(c[edges[i][0]]);
+      Vector2d p2 = proj.project2d(c[edges[i][1]]);
+      canvas.moveto(p1);
+      canvas.lineto(p2);
+    }
+  }
+
+  void draw_simulation_box(const std::unique_ptr<lammpstrj::SystemInfo> &si, Canvas &canvas, Projector &proj, bool draw_back) {
     Vector3d c[8] = {
         {si->x_min, si->y_min, si->z_min}, // 0
         {si->x_max, si->y_min, si->z_min}, // 1
@@ -44,14 +86,23 @@ public:
     };
     int edges[12][2] = {
         {0, 1}, {2, 3}, {4, 5}, {6, 7}, {0, 2}, {1, 3}, {4, 6}, {5, 7}, {0, 4}, {1, 5}, {2, 6}, {3, 7}};
-
+    auto visible = get_visible(proj);
     canvas.set_color(box_line_);
-    for (auto &e : edges) {
-      Vector2d p1 = proj.project2d(c[e[0]]);
-      Vector2d p2 = proj.project2d(c[e[1]]);
+    for (int i = 0; i < 12; i++) {
+      if (visible[i] ^ draw_back) continue;
+      Vector2d p1 = proj.project2d(c[edges[i][0]]);
+      Vector2d p2 = proj.project2d(c[edges[i][1]]);
       canvas.moveto(p1);
       canvas.lineto(p2);
     }
+  }
+
+  void draw_simulation_box_back(const std::unique_ptr<lammpstrj::SystemInfo> &si, Canvas &canvas, Projector &proj) {
+    draw_simulation_box(si, canvas, proj, false);
+  }
+
+  void draw_simulation_box_front(const std::unique_ptr<lammpstrj::SystemInfo> &si, Canvas &canvas, Projector &proj) {
+    draw_simulation_box(si, canvas, proj, true);
   }
 
   void draw_atoms(std::vector<lammpstrj::Atom> &atoms, Canvas &canvas, Projector &proj) {
@@ -86,8 +137,9 @@ public:
     Canvas canvas(width, height);
     canvas.set_color(background_);
     canvas.fill_rect(0, 0, width, height);
-    draw_simulation_box(si, canvas, projector_);
+    draw_simulation_box_back(si, canvas, projector_);
     draw_atoms(atoms, canvas, projector_);
+    draw_simulation_box_front(si, canvas, projector_);
     std::ostringstream oss;
     oss << "frame." << std::setw(4) << std::setfill('0') << si->frame_index << ".png";
     std::string filename = oss.str();
