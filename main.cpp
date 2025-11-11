@@ -14,6 +14,8 @@ auto parse_argument(int argc, char **argv) {
   options.add_options("positional")("filename", "LAMMPS trajectory file (.lammpstrj)", cxxopts::value<std::string>());
   options.parse_positional({"filename"});
 
+  options.add_options()("xmin", "Minimum x-coordinate to display", cxxopts::value<double>())("xmax", "Maximum x-coordinate to display", cxxopts::value<double>())("ymin", "Minimum y-coordinate to display", cxxopts::value<double>())("ymax", "Maximum y-coordinate to display", cxxopts::value<double>())("zmin", "Minimum z-coordinate to display", cxxopts::value<double>())("zmax", "Maximum z-coordinate to display", cxxopts::value<double>());
+
   for (int i = 0; i < trj_render::MAX_ATOM_TYPES; ++i) {
     std::string key = "radius" + std::to_string(i);
     std::string desc = "Radius of atom type " + std::to_string(i);
@@ -60,7 +62,30 @@ void read_lammpstrj(int argc, char **argv) {
   proj.rotateZ(rz_deg);
   proj.setScale(scale);
   trj_render::Renderer renderer(proj);
-  // renderer.add_condition(std::make_unique<trj_render::XMaxCondition>(60.0));
+  if (result.count("xmin")) {
+    double xmin = result["xmin"].as<double>();
+    renderer.add_condition(std::make_unique<trj_render::XMinCondition>(xmin));
+  }
+  if (result.count("xmax")) {
+    double xmax = result["xmax"].as<double>();
+    renderer.add_condition(std::make_unique<trj_render::XMaxCondition>(xmax));
+  }
+  if (result.count("ymin")) {
+    double ymin = result["ymin"].as<double>();
+    renderer.add_condition(std::make_unique<trj_render::YMinCondition>(ymin));
+  }
+  if (result.count("ymax")) {
+    double ymax = result["ymax"].as<double>();
+    renderer.add_condition(std::make_unique<trj_render::YMaxCondition>(ymax));
+  }
+  if (result.count("zmin")) {
+    double zmin = result["zmin"].as<double>();
+    renderer.add_condition(std::make_unique<trj_render::ZMinCondition>(zmin));
+  }
+  if (result.count("zmax")) {
+    double zmax = result["zmax"].as<double>();
+    renderer.add_condition(std::make_unique<trj_render::ZMaxCondition>(zmax));
+  }
 
   for (int i = 0; i < trj_render::MAX_ATOM_TYPES; ++i) {
     std::string opt = "radius" + std::to_string(i);

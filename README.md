@@ -61,7 +61,14 @@ This will compile the program and produce the executable `trj2png` in the projec
 | `-s, --scale <num>` | Scale factor for the simulation box → pixels (if negative, the scale is automatically adjusted so that the larger side of the image becomes 800 px) |
 | `-f, --frame <idx>` | Render only the specified frame (0-based). If omitted, all frames are rendered. |
 | `--radiusN <num>` | Radius of atom type **N** (0–15). Only applied if specified. |
+| `--xmin <value>` | Minimum x-coordinate to display |
+| `--xmax <value>` | Maximum x-coordinate to display |
+| `--ymin <value>` | Minimum y-coordinate to display |
+| `--ymax <value>` | Maximum y-coordinate to display |
+| `--zmin <value>` | Minimum z-coordinate to display |
+| `--zmax <value>` | Maximum z-coordinate to display |
 | `-h, --help` | Show help message |
+
 
 ## Examples
 
