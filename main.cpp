@@ -1,7 +1,6 @@
 #include "renderer.hpp"
 #include <cstdio>
 #include <cxxopts.hpp>
-#include <filesystem>
 #include <lammpstrj/lammpstrj.hpp>
 
 auto parse_argument(int argc, char **argv) {
@@ -40,9 +39,10 @@ void read_lammpstrj(int argc, char **argv) {
 
   const std::string filename = result["filename"].as<std::string>();
 
-  if (!std::filesystem::exists(filename)) {
+  std::ifstream fin(filename.c_str());
+  if (!fin.good()) {
     std::cerr << "Error: File not found: " << filename << std::endl;
-    exit(1);
+    std::exit(1);
   }
 
   const double rx_deg = result["rx"].as<double>();
