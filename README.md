@@ -74,22 +74,22 @@ This will compile the program and produce the executable `trj2png` in the projec
 
 ## Examples
 
-Render all frames, rotating by 30° around Y and −15° around Z, scaling by 200:
-```bash
-./trj2png -y 30 -z -15 -s 200 sample.lammpstrj
-```
-
-Render only frame 3, rotating by 45° around X, with automatic scaling:
-```bash
-./trj2png --rx 45 --scale -1 -f 3 sample.lammpstrj
-```
-
-Render frame 20, rotating by 30° around X, 3° around Y, and 3° around Z,  
-and set the radius of atom type 2 to 10:
-```bash
-./trj2png -x 30 -y 3 -z 3 --radius2=10 -f 20 sample.lammpstrj
-```
-
+* Render all frames, rotating by 30° around Y and −15° around Z, scaling by 200:
+  ```bash
+  ./trj2png -y 30 -z -15 -s 200 sample.lammpstrj
+  ```
+* Render only frame 3, rotating by 45° around X, with automatic scaling:
+  ```bash
+  ./trj2png --rx 45 --scale -1 -f 3 sample.lammpstrj
+  ```
+* Render frame 20, rotating by 30° around X, 3° around Y, and 3° around Z, and set the radius of atom type 2 to 10:
+  ```bash
+  ./trj2png -x 30 -y 3 -z 3 --radius2=10 -f 20 sample.lammpstrj
+  ```
+* Render frame 99, rotating by 10° around X, 3° around Y, and 3° around Z, displaying only atoms with x-coordinates between 50 and 60, setting the radius of atom type 2 to 10, and hiding atom type 2:
+  ```bash
+  ./trj2png -x 10 -y 3 -z 3 --xmin 50 --xmax 60 --radius2=10 --visible2=false -f 99 sample.lammpstrj
+  ```
 
 ## Output
 
