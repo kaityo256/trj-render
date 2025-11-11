@@ -10,10 +10,6 @@ auto parse_argument(int argc, char **argv) {
   options.add_options()("z,rz", "Rotation around Z axis (degrees)", cxxopts::value<double>()->default_value("0"));
   options.add_options()("s,scale", "Scale factor for simulation box → pixels (if negative, the scale is automatically adjusted so that the larger side of the image becomes 800 pixels)", cxxopts::value<double>()->default_value("-1"));
   options.add_options()("f,frame", "Render only this frame index (0-based). If omitted, renderall.", cxxopts::value<int>()->default_value("-1"));
-  options.add_options()("h,help", "Showhelp");
-  options.add_options("positional")("filename", "LAMMPS trajectory file (.lammpstrj)", cxxopts::value<std::string>());
-  options.parse_positional({"filename"});
-
   options.add_options()("xmin", "Minimum x-coordinate to display", cxxopts::value<double>())("xmax", "Maximum x-coordinate to display", cxxopts::value<double>())("ymin", "Minimum y-coordinate to display", cxxopts::value<double>())("ymax", "Maximum y-coordinate to display", cxxopts::value<double>())("zmin", "Minimum z-coordinate to display", cxxopts::value<double>())("zmax", "Maximum z-coordinate to display", cxxopts::value<double>());
 
   for (int i = 0; i < trj_render::MAX_ATOM_TYPES; ++i) {
@@ -21,6 +17,16 @@ auto parse_argument(int argc, char **argv) {
     std::string desc = "Radius of atom type " + std::to_string(i);
     options.add_options()(key, desc, cxxopts::value<double>());
   }
+
+  for (int i = 0; i < trj_render::MAX_ATOM_TYPES; ++i) {
+    std::string key = "visible" + std::to_string(i);
+    std::string desc = "Visibility of atom type " + std::to_string(i) +
+                       " (true to display, false to hide)";
+    options.add_options()(key, desc, cxxopts::value<bool>());
+  }
+  options.add_options()("h,help", "Showhelp");
+  options.add_options("positional")("filename", "LAMMPS trajectory file (.lammpstrj)", cxxopts::value<std::string>());
+  options.parse_positional({"filename"});
 
   auto result = options.parse(argc, argv);
   if (result.count("help")) {
@@ -92,6 +98,14 @@ void read_lammpstrj(int argc, char **argv) {
     if (result.count(opt)) {
       double r = result[opt].as<double>();
       renderer.set_atom_radius(i, r);
+    }
+  }
+
+  for (int i = 0; i < trj_render::MAX_ATOM_TYPES; ++i) {
+    std::string opt = "visible" + std::to_string(i);
+    if (result.count(opt)) {
+      bool visible = result[opt].as<bool>();
+      renderer.add_condition(std::make_unique<trj_render::AtomTypeCondition>(i, visible));
     }
   }
 

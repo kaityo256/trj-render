@@ -75,4 +75,21 @@ public:
 private:
   double z_max_;
 };
+
+class AtomTypeCondition : public Condition {
+public:
+  AtomTypeCondition(int type, bool visible)
+      : type_(type), visible_(visible) {}
+
+  bool check(lammpstrj::Atom &a) override {
+    if (a.type == type_) {
+      return visible_;
+    }
+    return true;
+  }
+
+private:
+  int type_;
+  bool visible_;
+};
 }

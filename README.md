@@ -48,7 +48,7 @@ This will compile the program and produce the executable `trj2png` in the projec
 ## Usage
 
 ```bash
-./trj2png [options] filename
+./trj2png [options] filename 
 ```
 
 ### Options
@@ -61,6 +61,7 @@ This will compile the program and produce the executable `trj2png` in the projec
 | `-s, --scale <num>` | Scale factor for the simulation box → pixels (if negative, the scale is automatically adjusted so that the larger side of the image becomes 800 px) |
 | `-f, --frame <idx>` | Render only the specified frame (0-based). If omitted, all frames are rendered. |
 | `--radiusN <num>` | Radius of atom type **N** (0–15). Only applied if specified. |
+| `--visibleN=<bool>` | Visibility of atom type **N** (true to display, false to hide). **The `=` sign is required for boolean options** (e.g. `--visible1=false`). |
 | `--xmin <value>` | Minimum x-coordinate to display |
 | `--xmax <value>` | Maximum x-coordinate to display |
 | `--ymin <value>` | Minimum y-coordinate to display |
@@ -68,6 +69,7 @@ This will compile the program and produce the executable `trj2png` in the projec
 | `--zmin <value>` | Minimum z-coordinate to display |
 | `--zmax <value>` | Maximum z-coordinate to display |
 | `-h, --help` | Show help message |
+
 
 
 ## Examples
