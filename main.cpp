@@ -60,6 +60,7 @@ void read_lammpstrj(int argc, char **argv) {
   proj.rotateZ(rz_deg);
   proj.setScale(scale);
   trj_render::Renderer renderer(proj);
+  // renderer.add_condition(std::make_unique<trj_render::XMaxCondition>(60.0));
 
   for (int i = 0; i < trj_render::MAX_ATOM_TYPES; ++i) {
     std::string opt = "radius" + std::to_string(i);

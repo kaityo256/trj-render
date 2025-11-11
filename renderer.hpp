@@ -1,5 +1,6 @@
 #pragma once
 #include "canvas.hpp"
+#include "condition.hpp"
 #include "projector.hpp"
 #include "vector3d.hpp"
 #include <cstdio>
@@ -105,6 +106,15 @@ public:
     draw_simulation_box(si, canvas, proj, true);
   }
 
+  bool check_all(lammpstrj::Atom &atom) {
+    for (auto &cond : conditions_) {
+      if (!cond->check(atom)) {
+        return false;
+      }
+    }
+    return true;
+  }
+
   void draw_atoms(std::vector<lammpstrj::Atom> &atoms, Canvas &canvas, Projector &proj) {
     std::vector<Vector3d> pos;
     for (auto a : atoms) {
@@ -121,6 +131,7 @@ public:
                 return da < db;
               });
     for (std::size_t i : idx) {
+      if (!check_all(atoms[i])) continue;
       const auto t = atoms[i].type;
       const double r = atom_radius_[t] * proj.scale();
       Vector2d s = proj.project2d(pos[i]);
@@ -146,11 +157,15 @@ public:
     std::cout << filename << std::endl;
     canvas.save(filename.c_str());
   }
+  void add_condition(std::unique_ptr<Condition> cond) {
+    conditions_.push_back(std::move(cond));
+  }
 
 private:
   Projector projector_;
   Color background_;
   Color box_line_;
+  std::vector<std::unique_ptr<Condition>> conditions_;
   std::array<Color, MAX_ATOM_TYPES + 1> atom_outline_;
   std::array<Color, MAX_ATOM_TYPES + 1> atom_fill_;
   std::array<double, MAX_ATOM_TYPES + 1> atom_radius_;
